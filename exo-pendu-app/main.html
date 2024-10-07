@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jeu du Pendu</title>
+  <body>
+    <h1>Jeu du Pendu</h1>
+    <div>
+      <label for="difficulty">Choisissez la difficulté: </label>
+      <select id="difficulty">
+        <option value="easy">Facile</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Difficile</option>
+      </select>
+      <button id="startGame">Commencer le jeu</button>
+    </div>
+    <div id="containerJeu" style="display: none">
+      <p id="motATrouver">Mot à trouver:</p>
+      <form id="lettreForm">
+        <input
+          type="text"
+          id="lettreInput"
+          maxlength="1"
+          placeholder="Entrez une lettre"
+        />
+        <button id="soumettreLettre">Soumettre</button>
+      </form>
+      <p id="erreurs">Erreurs: 0/5</p>
+      <pre id="penduDessin"></pre>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
