@@ -111,70 +111,96 @@ function demandeDifficulteGetWordLen(difficulte) {
 }
 
 /**
- * Initialise et démarre le jeu lorsque le bouton de démarrage est cliqué.
+ * Initialise et démarre le jeu lorsque l'un des boutons difficulté est cliqué.
  */
 
 let nbErreur = 0;
-let lstIndexTrouve = [];
+let lstIndexTrouve = []; // Liste de TOUS les index des lettres trouvées
 
-document.getElementById('startGame').addEventListener('click', function() {
-    const difficulty = document.getElementById('difficulty').value;
-    const dictMot = buildDict(LST_MOTS);
-    const lenMot = demandeDifficulteGetWordLen(difficulty);
-    const motATrouver = selectWord(dictMot, lenMot);
+let boutonsDifficulte = document.querySelectorAll('.difficulty');
 
-    document.getElementById('containerJeu').style.display = 'block';
-    document.getElementById('motATrouver').textContent = "Mot à trouver: " + outputStr(motATrouver, []);
-    document.getElementById('erreurs').textContent = "Erreurs: 0/5";
-    document.getElementById('penduDessin').textContent = "";
+boutonsDifficulte.forEach(function(bouton) {
+    bouton.addEventListener('click', function() {
+        const difficulty = this.name;
+        const dictMot = buildDict(LST_MOTS);
+        const lenMot = demandeDifficulteGetWordLen(difficulty);
+        const motATrouver = selectWord(dictMot, lenMot);
 
+        document.querySelector('.indice').style.display = 'flex';
+        document.querySelector('.indice').title = "Indice: \"" + motATrouver + "\" ^^";
+        document.querySelector(".containerDifficulte").style.display = 'none';
+        document.getElementById('containerJeu').style.display = 'flex';
+        document.getElementById('motATrouver').textContent = outputStr(motATrouver, []);
+        document.getElementById('erreurs').textContent = "5 tentatives restantes";
+        document.getElementById('penduDessin').textContent = "";
 
+        // Permet de ne pas ajouter plusieurs event listeners sur le même élément
+        const lettreForm = document.getElementById('lettreForm');
+        const newLettreForm = lettreForm.cloneNode(true);
+        lettreForm.parentNode.replaceChild(newLettreForm, lettreForm);
 
-    /**
-     * Gère la soumission d'une lettre devinée lors du clique sur le bouton "soumettre"
-     */
-    document.getElementById('lettreForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const chr = document.getElementById('lettreInput').value.toLowerCase();
-        document.getElementById('lettreInput').value = '';
+        /**
+         * gère la soumission d'une lettre devinée lors du clique sur le bouton "soumettre"
+         */
+        newLettreForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const chr = document.getElementById('lettreInput').value.toLowerCase();
+            console.log(chr);
+            document.getElementById('lettreInput').value = ''; // Reset l'input
 
-        let lstIndexRes;
-        try {
-            lstIndexRes = placesLettre(chr, motATrouver);
-        } catch (e) {
-            alert(e.message + ": Impossible de placer la lettre.");
-            return;
-        }
-
-        if (lstIndexRes.length === 0) {
-            nbErreur += 1;
-            document.getElementById('erreurs').textContent = `Erreurs: ${nbErreur}/5`;
-
-            let pendu = '';
-            for (let ligne = 0; ligne < nbErreur; ligne++) {
-                pendu += LST_PENDU[ligne] + '\n';
+            let lstIndexRes; //liste des index des lettres trouvées pour la lettre entrée
+            try {
+                lstIndexRes = placesLettre(chr, motATrouver);
+            } catch (e) {
+                alert(e.message + ": Impossible de placer la lettre.");
+                return;
             }
-            document.getElementById('penduDessin').textContent = pendu;
 
-            if (nbErreur === 5) {
-                alert("Perdu ! Le mot était " + motATrouver);
-                resetValues();
-            }
-        } else {
-            lstIndexTrouve = lstIndexTrouve.concat(lstIndexRes);
-            document.getElementById('motATrouver').textContent = "Mot à trouver: " + outputStr(motATrouver, lstIndexTrouve);
+            //  cas où la lettre n'est pas dans le mot
+            if (lstIndexRes.length === 0) {
+                nbErreur += 1;
+                msgTentatives = nbErreur > 4? `${5-nbErreur} tentative restante` : `${5-nbErreur} tentatives restantes`;
+                document.getElementById('erreurs').textContent = msgTentatives;
 
-            if (lstIndexTrouve.length === motATrouver.length) {
-                alert("Bravo ! Le mot était bien " + motATrouver + "!");
-                resetValues();
+                let pendu = '';
+                for (let ligne = 0; ligne < nbErreur; ligne++) {
+                    pendu += LST_PENDU[ligne] + '\n';
+                }
+                document.getElementById('penduDessin').textContent = pendu;
+
+                if (nbErreur === 5) {
+                    document.getElementById('penduDessin').textContent = "MORT !";
+                    boiteFin("Perdu ! Le mot était \"" + motATrouver + "\".");
+                }
+            // cas où la lettre est dans le mot
+            } else {
+                lstIndexTrouve = lstIndexTrouve.concat(lstIndexRes);
+                document.getElementById('motATrouver').textContent = outputStr(motATrouver, lstIndexTrouve);
+
+                if (lstIndexTrouve.length === motATrouver.length) {
+                    boiteFin("Bravo ! Le mot était bien \"" + motATrouver + "\" !")
+                }
             }
-        }
+        });
     });
-});
+})
+
+function boiteFin(msg){
+    document.getElementById('lettreForm').style.pointerEvents = 'none';
+    document.getElementById('lettreInput').disabled = true;
+    document.querySelector(".finGame").style.display = 'flex';
+    document.getElementById('messageFin').textContent = msg;
+
+}
 
 // reset values
 
 function resetValues() {
+    document.querySelector('.indice').style.display = 'none';
+    document.getElementById('lettreForm').style.pointerEvents = 'auto';
+    document.getElementById('lettreInput').disabled = false
+    document.querySelector('.finGame').style.display = 'none';
+    document.querySelector(".containerDifficulte").style.display = 'flex';
     document.getElementById('lettreInput').value = '';
     document.getElementById('containerJeu').style.display = 'none';
     document.getElementById('motATrouver').textContent = '';
