@@ -21,18 +21,20 @@ main{
   width: 100%;
   max-width: 800px;
   justify-content: space-evenly;
+  flex-wrap: wrap;
 }
 
 .containerDifficulte button{
   background: linear-gradient(145deg, #8eff946b, #a0e9ff72);
   border-radius: 10px;
   border: 1px solid;
-  box-shadow: 5px 3px 0px 0px rgb(0, 0, 0);
+  width: 200px;
+  box-shadow: 2px 1px 0px 0px rgb(0, 0, 0);
   cursor: pointer;
   font-size: 2rem;
-  margin: 0 15px;
+  margin: 5px 15px;
   padding: 15px 40px;
-  transition: all .2s ease-in-out;
+  transition: all .1s ease-in-out;
 }
 
 .containerDifficulte button:hover {
